@@ -1,31 +1,40 @@
 version: "3"
-services: 
-    hub: 
-        image: selenium/hub:latest
-        ports:
-            - "4444:4444"
-    chrome:
-        image: selenium/node-chrome:beta
-        depends_on:
-            - hub
-        environment:
-            - HUB_HOST=hub
-    firefox:
-        image: selenium/node-firefox:beta
-        shm_size: '1gb'
-        depends_on:
-            - hub
-        environment:
-            - HUB_HOST=hub
-    search-module:
-        image: 8049376624/selenium-docker
-        depends_on:
-            - chrome
-            - firefox
-        environment:
-            - HUB_HOST=hub
-            - BROWSER=chrome
-            - MODULE=testng.xml
-        volumes:
-            - ./output/result:/Project/cucumberFW/target
-        
+services:
+  chrome:
+    image: selenium/node-chrome:beta
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  edge:
+    image: selenium/node-edge:beta
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  firefox:
+    image: selenium/node-firefox:beta
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  selenium-hub:
+    image: selenium/hub:latest
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
